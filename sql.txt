@@ -1,0 +1,53 @@
+1) select id, created_at, offer_id, comment_text from users left join comments on users.id = user_id
+___________________________________________________________________________________________
+select id, created_at, offer_id, comment_text - значения для вывода
+
+from users left join comments - данные берём из таблиц users и comments, при этом объединяем таблицы (к данным из первой добавляем данные из второй)
+
+on users.id = user_id - сопоставляем данные по id
+___________________________________________________________________________________________
+
+2) select users.id, created_at, user_id, offer_type, title, price, picture from offers left join comments where create_at >= '01.10.2021' and create_at <= '31.10.2021' desc
+___________________________________________________________________________________________
+select users.id, created_at, user_id, offer_type, title, price, picture - значения для вывода
+
+from offers left join comments - данные берём из таблиц offers и comments, объединяем
+
+where create_at >= '01.10.2021' and create_at <= '31.10.2021' - выбор данных по дате 
+
+desc - сортировка по убыванию (от более свежих к более поздним)
+___________________________________________________________________________________________
+
+3) select users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) as 'user_name' from users left join offers where not exists (select offers.id from offers) asc
+___________________________________________________________________________________________
+select users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) as 'user_name' - значения для вывода
+
+concat_ws(first_name, ' ', last_name) as 'user_name' - объединяем два поля и выводим как одно
+
+from users left join offers - данные берём из таблиц users и offers, объединяем
+
+where not exists (select offers.id from offers) - условие выборки - нет поля offers.id в таблице offers (не возможно найти объявления пользователя, не уверена,что это нужно было сделать так) 
+
+asc - сортировка повозрастанию
+___________________________________________________________________________________________
+
+4) select offers.id, concat_ws(first_name, ' ', last_name) as 'user_name', title, price from users left join offers desc limit 5
+___________________________________________________________________________________________
+select offers.id, concat_ws(first_name, ' ', last_name) as 'user_name', title, price - значения для вывода
+
+from users left join offers - данные берём из таблиц users и offers, объединяем
+
+desc - сортировка по убыванию
+
+limit 5 - выбираем первые 5 записей (в задании написано "самые дорогие товары, их количество динамическое и заранее неизвестно", не совсем понятно в таком случае сколько товаров выводить и как это определять, поэтому написала ограничение по количеству - первые 5)
+___________________________________________________________________________________________
+5) select cotegories.id, cotegories.title, slug, count(categories.title) as 'offer_amount' from offers left join category_offer left join categories where exists(select offer_id from category_offer)
+___________________________________________________________________________________________
+select cotegories.id, cotegories.title, slug, count(categories.title) as 'offer_amount' - значения для вывода
+
+from offers left join category_offer left join categories - данные берём из таблиц offers, category_offer и categories, объединяем
+
+where exists(select offer_id from category_offer) - условие выборки - есть запись в поле offer_id в таблице category_offer (здесь тоже не уверена)
+___________________________________________________________________________________________
+
+P.S. Не проверяла работу запросов, чтобы не тратить время на создание БД, не уверена в нескольких местах в запросах, но не нашла как можно исправить
