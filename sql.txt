@@ -1,53 +1,143 @@
-1) select id, created_at, offer_id, comment_text from users left join comments on users.id = user_id
+1) Выберите список всех комментариев, созданных пользователем с идентификатором 1. Поля для вывода: id, created_at, offer_id, comment_text.
+
+SELECT id, created_at, offer_id, comment_text 
+fROM users 
+JOIN comments ON users.id = user_id;
 ___________________________________________________________________________________________
-select id, created_at, offer_id, comment_text - значения для вывода
+SELECT id, created_at, offer_id, comment_text - значения для вывода
 
-from users left join comments - данные берём из таблиц users и comments, при этом объединяем таблицы (к данным из первой добавляем данные из второй)
+fROM users JOIN comments - данные берём из таблиц users и comments, при этом объединяем таблицы (к данным из первой добавляем данные из второй)
 
-on users.id = user_id - сопоставляем данные по id
-___________________________________________________________________________________________
-
-2) select users.id, created_at, user_id, offer_type, title, price, picture from offers left join comments where create_at >= '01.10.2021' and create_at <= '31.10.2021' desc
-___________________________________________________________________________________________
-select users.id, created_at, user_id, offer_type, title, price, picture - значения для вывода
-
-from offers left join comments - данные берём из таблиц offers и comments, объединяем
-
-where create_at >= '01.10.2021' and create_at <= '31.10.2021' - выбор данных по дате 
-
-desc - сортировка по убыванию (от более свежих к более поздним)
+ON users.id = user_id - сопоставляем данные по id
 ___________________________________________________________________________________________
 
-3) select users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) as 'user_name' from users left join offers where not exists (select offers.id from offers) asc
+2) Выведите список объявлений (id, created_at, user_id, offer_type, title, price, picture), опубликованных в октябре 2021 года с сортировкой по дате публикации от самых свежих к более поздним. Дату публикации выведите в формате ‘DD.MM.YYYY’.
+
+SELECT users.id, created_at, user_id, offer_type, title, price, picture 
+fROM offers 
+JOIN comments 
+WHERE create_at >= '01.10.2021' AND create_at <= '31.10.2021' 
+ORDER BY create_at DESC;
 ___________________________________________________________________________________________
-select users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) as 'user_name' - значения для вывода
+SELECT users.id, created_at, user_id, offer_type, title, price, picture - значения для вывода
 
-concat_ws(first_name, ' ', last_name) as 'user_name' - объединяем два поля и выводим как одно
+fROM offers JOIN comments - данные берём из таблиц offers и comments, объединяем
 
-from users left join offers - данные берём из таблиц users и offers, объединяем
+WHERE create_at >= '01.10.2021' and create_at <= '31.10.2021' - выбор данных по дате 
 
-where not exists (select offers.id from offers) - условие выборки - нет поля offers.id в таблице offers (не возможно найти объявления пользователя, не уверена,что это нужно было сделать так) 
-
-asc - сортировка повозрастанию
-___________________________________________________________________________________________
-
-4) select offers.id, concat_ws(first_name, ' ', last_name) as 'user_name', title, price from users left join offers desc limit 5
-___________________________________________________________________________________________
-select offers.id, concat_ws(first_name, ' ', last_name) as 'user_name', title, price - значения для вывода
-
-from users left join offers - данные берём из таблиц users и offers, объединяем
-
-desc - сортировка по убыванию
-
-limit 5 - выбираем первые 5 записей (в задании написано "самые дорогие товары, их количество динамическое и заранее неизвестно", не совсем понятно в таком случае сколько товаров выводить и как это определять, поэтому написала ограничение по количеству - первые 5)
-___________________________________________________________________________________________
-5) select cotegories.id, cotegories.title, slug, count(categories.title) as 'offer_amount' from offers left join category_offer left join categories where exists(select offer_id from category_offer)
-___________________________________________________________________________________________
-select cotegories.id, cotegories.title, slug, count(categories.title) as 'offer_amount' - значения для вывода
-
-from offers left join category_offer left join categories - данные берём из таблиц offers, category_offer и categories, объединяем
-
-where exists(select offer_id from category_offer) - условие выборки - есть запись в поле offer_id в таблице category_offer (здесь тоже не уверена)
+ORDER BY create_at DESC - сортировка по убыванию (от более свежих к более поздним)
 ___________________________________________________________________________________________
 
-P.S. Не проверяла работу запросов, чтобы не тратить время на создание БД, не уверена в нескольких местах в запросах, но не нашла как можно исправить
+3) Выберите список пользователей, которые ещё не опубликовали ни одного объявления. Поля для вывода: идентификатор пользователя, email, дата регистрации, имя и фамилия одной строкой как ‘user_name’. Отсортируйте по возрастанию даты регистрации.
+
+SELECT users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) AS 'user_name' 
+fROM users 
+JOIN offers 
+WHERE NOT EXISTS (SELECT offers.id FROM offers) 
+ORDER BY created_at ASC;
+___________________________________________________________________________________________
+SELECT users.id, email, users.created_at, concat_ws(first_name, ' ', last_name) as 'user_name' - значения для вывода
+
+CONCAT_WS(first_name, ' ', last_name) AS 'user_name' - объединяем два поля и выводим как одно
+
+fROM users JOIN offers - данные берём из таблиц users и offers, объединяем
+
+WHERE NOT EXISTS (select offers.id from offers) - условие выборки - нет поля offers.id в таблице offers (не возможно найти объявления пользователя, не уверена,что это нужно было сделать так) 
+
+ORDER BY created_at ASC - сортировка по возрастанию
+___________________________________________________________________________________________
+
+4) Выберите среди всех объявлений на продажу самые дорогие товары, их количество динамическое и заранее неизвестно.
+Выведите их идентификаторы, автора (имя, фамилия), заголовки и цену продажи. 
+
+SELECT offers.id, CONCAT_WS(first_name, ' ', last_name) AS 'user_name', title, price 
+fROM users 
+JOIN offers 
+ORDER BY price DESC 
+LIMIT 5;
+___________________________________________________________________________________________
+SELECT offers.id, CONCAT_WS(first_name, ' ', last_name) AS 'user_name', title, price - значения для вывода
+
+fROM users JOIN offers - данные берём из таблиц users и offers, объединяем
+
+ORDER BY price DESC - сортировка по убыванию
+
+LIMIT 5 - выбираем первые 5 записей (в задании написано "самые дорогие товары, их количество динамическое и заранее неизвестно", не совсем понятно в таком случае сколько товаров выводить и как это определять, поэтому написала ограничение по количеству - первые 5)
+___________________________________________________________________________________________
+5) Для вывода на сайте выберите список всех категорий, в которых есть хотя бы одно объявление с указанием количества объявлений по каждой категории. Выведите id категории, title, slug, количество объявлений (offer_amount).
+
+SELECT cotegories.id, cotegories.title, slug, COUNT(categories.title) AS 'offer_amount' 
+fROM offers 
+JOIN category_offer ON offers.id = category_offer.offer_id
+JOIN categories ON category_offer.category_id = categories.id
+WHERE EXISTS(SELECT offer_id fROM category_offer);
+___________________________________________________________________________________________
+SELECT cotegories.id, cotegories.title, slug, COUNT(categories.title) AS 'offer_amount' - значения для вывода
+
+fROM offers JOIN category_offer JOIN categories - данные берём из таблиц offers, category_offer и categories, объединяем
+
+WHERE EXISTS(SELECT offer_id fROM category_offer) - условие выборки - есть запись в поле offer_id в таблице category_offer (здесь тоже не уверена)
+___________________________________________________________________________________________
+
+Хардкор-задания для уверенных пользователей SQL: 
+___________________________________________________________________________________________
+1) Выберите список объявлений, относящихся к категории “Дом”. 
+Поля: название категории (category_name) и данные объявления (id, created_at, user_id, title, price). Список категорий для объявлений выводить не нужно.
+Выведите следующие 4 объявления после первых 4.
+
+SELECT  categories.title, offers.id, created_at, user_id, offers.title 
+FROM offers 
+JOIN category_offer ON offers.id = category_offer.offer.id 
+JOIN categories ON category_offer.category_id = categories.id
+WHERE categories.title = 'Дом'
+LIMIT 4, 4;
+___________________________________________________________________________________________
+
+___________________________________________________________________________________________
+
+2) Выведите объявления (id, title, user_id, offer_type, price) со всеми категориями, к которым оно относится, собранными в одну строку, например: “Спорт, Развлечения, Дети”. Назовите этот столбец categories. Отсортируйте по убыванию цены. Выведите названия типов объявлений на русском: если тип buy, то нужно вывести “Куплю”, если sell - “Продам”, соответственно.
+
+SELECT offers.id, offers.title, user.id, offer_type, price, STRING_AGG(categories.title, ',') AS categories
+FROM offers
+JOIN offer.id = category_offer.offer_id
+JOIN categories ON category_offer.category_id = categories.id
+WHERE categories.id IS NOT NULL
+CASE offer_type
+WHEN buy 
+THEN Куплю
+ELSE Продам
+ORDER BY price DESC;
+___________________________________________________________________________________________
+
+___________________________________________________________________________________________
+3) Выведите список пользователей (id, first_name, last_name, email), количество объявлений, созданных ими (offer_amount), и количество комментариев под этими объявлениями (comments_amount). Результат отсортируйте по убыванию  offer_amount.
+
+SELECT users_id, first_name, last_name, email, COUNT(offers.id) AS offer_amount, COUNT(comments.id) AS comments_amount
+FROM users
+JOIN offers ON users.id = offers.user_id
+JOIN comments ON users.id = comments. user_id
+GROUP BY users_id
+ORDER BY offer_amount DESC:
+___________________________________________________________________________________________
+
+В 4 задании не понятно что нужно вывести. Сколько "Самых дорогих таваров"? 
+Ограниченное количество, один, все товары в порядке от большей цены к меньшей, 
+товары до определённого минимума в порядке убывания цены или как-то ещё?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
